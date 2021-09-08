@@ -4,6 +4,7 @@
 #include <vector>
 #include <math.h>
 #include <set>
+#include <algorithm>
 
 using namespace std;
 
@@ -21,7 +22,7 @@ bool abo(a x, a y){
 	return ((x.x * 100 + x.y) > (y.x * 100 + y.y));
 }
 
-int numsee(a ast, vector<a> asts){
+pair<set<double>,set<double>> numsee(a ast, vector<a> asts){
 	set<double> ayy;
 	set<double> bee;
 	for(size_t i = 0; i < asts.size(); i++){
@@ -32,21 +33,12 @@ int numsee(a ast, vector<a> asts){
 			bee.insert(slope(ast, asts[i]));
 		}
 	}
-	return ayy.size() + bee.size();
+	return pair<set<double>,set<double>>(ayy, bee);
 }	
+
 int dist(a c, a d){
 	return abs(c.x - d.x) + abs(c.y - d.y);
 }
-
-a destroy(vector<a>& asts, a stat, a dest){
-	bool above = abo(stat,dest);
-	double m = slope(stat,dest);
-	double diff = 1000000;
-
-	for(size_t i = 0; i < asts.size(); i++){
-		if
-
-
 
 int main() {
 	vector<a> asteroids;
@@ -67,19 +59,59 @@ int main() {
 	}
 	int largest = 0;
 	a station;
+  pair<set<double>,set<double>> slopes;
 	for(int i = 0; i < asteroids.size(); i++){
-		int num = numsee(asteroids[i], asteroids);
+	  pair<set<double>,set<double>> lopes = numsee(asteroids[i], asteroids);
+    int num = lopes.first.size() + lopes.second.size();
 		if(largest < num){
 			largest = num;
 			station = asteroids[i];
+      slopes = lopes;
 		}
 	}
 	cout << largest << endl;
 
-	a dest;
-	for(int i = 0; i < 200; i++){
-		dest = destroy(asteroids, station, dest);
-	}
-	cout << dest.x * 100 + dest.y << endl;
+  vector<double> g;
+  vector<double> l;
+  vector<double> gb;
+  vector<double> lb;
+
+  for(auto d : slopes.first){
+    if(d > 0) g.push_back(d);
+    if(d < 0) l.push_back(d);
+  }
+  for(auto d : slopes.second){
+    if(d > 0) gb.push_back(d);
+    if(d < 0) lb.push_back(d);
+  }
+
+  sort(g.begin(),g.end(),greater<double>());
+  sort(lb.begin(),lb.end(),greater<double>());
+  sort(gb.begin(),gb.end(),greater<double>());
+  sort(l.begin(),l.end(),greater<double>());
+
+  g.insert(g.end(),lb.begin(),lb.end());
+  g.insert(g.end(),gb.begin(),gb.end());
+  g.insert(g.end(),l.begin(),l.end());
+  
+
+
+  vector<a> cand;
+
+  for(a d : asteroids){
+    if(abo(station, d) && slope(station,d) == g[199]){
+      cand.push_back(d);
+    }
+  }
+
+  a dest = cand[0];
+  for(int i = 1; i < cand.size(); i++){
+    if(dist(station,dest) > dist(station,cand[i])){
+      dest = cand[i];
+    }
+  }
+  
+  cout << dest.x * 100 + dest.y << endl;
+
 	return 0;
 }
