@@ -14,12 +14,12 @@ struct a{
 };
 
 double slope(a x, a y){
-  if((x.x - y.x) == 0) return -100000;
+  if((x.x - y.x) == 0) return 100000;
   return (((double)(y.y - x.y)) / (x.x - y.x));
 }
 
 bool abo(a x, a y){
-  return ((x.x * 100 + x.y) < (y.x * 100 + y.y));
+  return ((x.y * 100 + x.x) < (y.y * 100 + y.x));
 }
 
 pair<set<double>,set<double>> numsee(a ast, vector<a> asts){
@@ -47,6 +47,7 @@ int main() {
   vector<string> input;
   while(getline(myfile, line)) input.push_back(line);
 
+  a station;
   for(int i = 0; i < input.size(); i++){
     for(int j = 0; j < input[i].size(); j++){
       if(input[i][j] == '#'){
@@ -54,33 +55,39 @@ int main() {
         o.y = i;
         o.x = j;
         asteroids.push_back(o);
+      } else if (input[i][j] == 'X'){
+        station.y = i;
+        station.x = j;
       }
     }
   }
-  int largest = 0;
-  a station;
-  pair<set<double>,set<double>> slopes;
-  for(int i = 0; i < asteroids.size(); i++){
-    pair<set<double>,set<double>> lopes = numsee(asteroids[i], asteroids);
-    int num = lopes.first.size() + lopes.second.size();
-    if(largest < num){
-      largest = num;
-      station = asteroids[i];
-      slopes = lopes;
-    }
-  }
-  cout << largest << endl;
+//  int largest = 0;
+//  a station;
+//  pair<set<double>,set<double>> slopes;
+//  for(int i = 0; i < asteroids.size(); i++){
+//    pair<set<double>,set<double>> lopes = numsee(asteroids[i], asteroids);
+//    int num = lopes.first.size() + lopes.second.size();
+//    if(largest < num){
+//      largest = num;
+//      station = asteroids[i];
+//      slopes = lopes;
+//    }
+//  }
+//  cout << largest << endl;
+//
+//
+  pair<set<double>,set<double>> slopes = numsee(station, asteroids);
 
   vector<double> g;
   vector<double> l;
   vector<double> gb;
   vector<double> lb;
 
-  for(auto d : slopes.first){
+  for(auto d : slopes.second){
     if(d > 0) g.push_back(d);
     if(d <= 0) l.push_back(d);
   }
-  for(auto d : slopes.second){
+  for(auto d : slopes.first){
     if(d > 0) gb.push_back(d);
     if(d <= 0) lb.push_back(d);
   }
@@ -90,43 +97,47 @@ int main() {
   sort(gb.begin(),gb.end(), greater<double>());
   sort(l.begin(),l.end(), greater<double>());
 
+  for(auto asd : g) cout << asd << " ";
+  cout << endl;
+
   g.insert(g.end(),lb.begin(),lb.end());
   g.insert(g.end(),gb.begin(),gb.end());
   g.insert(g.end(),l.begin(),l.end());
   
-  vector<a> cand;
 
-  a q;
-  q.x = 8;
-  q.y = 2;
-  for(int i = 0; i < g.size(); i++){
-    if(slope(station, q) == g[i]){
-      cout << ":)" <<  i << endl;
-    }
-  }
-  cout << slope(station, q) << endl;
-  cout << g[199] << endl;
 
-  for(a d : asteroids){
-    if(slope(station,d) == g[199]){
-      cand.push_back(d);
+  for(auto q : g){
+    vector<a> cand;
+    for(a d : asteroids){
+      if(slope(station,d) == q){
+        cand.push_back(d);
+      }
     }
+    cout << q << ": ";
+    for(a d : cand) cout << d.x << "," << d.y << " ";
+    cout << endl;
   }
-
-  a dest = cand[0];
-  cout << cand.size() << endl;
-  for(auto ql : cand){
-    cout << ql.x << " " << ql.y << endl;
-  }
-  
-  //this is wrong.
-  for(int i = 1; i < cand.size(); i++){
-    if(dist(station,dest) > dist(station,cand[i])){
-      dest = cand[i];
-    }
-  }
-  
-  cout << dest.x * 100 + dest.y << endl;
+//  vector<a> cand;
+//  for(a d : asteroids){
+//    if(slope(station,d) == g[199]){
+//      cand.push_back(d);
+//    }
+//  }
+//
+//  a dest = cand[0];
+//  cout << cand.size() << endl;
+//  for(auto ql : cand){
+//    cout << ql.x << " " << ql.y << endl;
+//  }
+//  
+//  //this is wrong.
+//  for(int i = 1; i < cand.size(); i++){
+//    if(dist(station,dest) > dist(station,cand[i])){
+//      dest = cand[i];
+//    }
+//  }
+//  
+//  cout << dest.x * 100 + dest.y << endl;
 
   return 0;
 }
